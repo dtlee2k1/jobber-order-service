@@ -17,6 +17,7 @@ import { checkConnection } from '@order/elasticsearch';
 import { createConnection } from '@order/queues/connection';
 import healthRouter from '@order/routes/health.routes';
 import orderRouter from '@order/routes/order.routes';
+import { consumeReviewFanoutMessages } from '@order/queues/order.consumer';
 
 const SERVER_PORT = 4006;
 const logger = winstonLogger(`${envConfig.ELASTIC_SEARCH_URL}`, 'OrderService', 'debug');
@@ -70,6 +71,7 @@ function routesMiddleware(app: Application) {
 
 async function startQueues() {
   orderChannel = (await createConnection()) as Channel;
+  await consumeReviewFanoutMessages(orderChannel);
 }
 
 async function startElasticSearch() {
