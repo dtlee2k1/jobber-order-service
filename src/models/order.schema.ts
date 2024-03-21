@@ -27,7 +27,7 @@ const orderSchema: Schema = new Schema(
     buyerUsername: { type: String, required: true },
     buyerEmail: { type: String, required: true },
     buyerImage: { type: String, required: true },
-    status: { type: String, required: true }, // ongoing | completed | canceled
+    status: { type: String, required: true }, // Ongoing | Completed | Cancelled | Delivered
     orderId: { type: String, required: true, index: true },
     quantity: { type: Number, required: true },
     price: { type: Number, required: true },
