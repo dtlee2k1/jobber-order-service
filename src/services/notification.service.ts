@@ -1,6 +1,7 @@
 import { IOrderDocument, IOrderNotifcation } from '@dtlee2k1/jobber-shared';
 import { OrderNotificationModel } from '@order/models/notification.schema';
 import { socketIOOrderObject } from '@order/server';
+import { getOrderByOrderId } from '@order/services/order.service';
 
 export async function createNotification(data: IOrderNotifcation) {
   const notification: IOrderNotifcation = await OrderNotificationModel.create(data);
@@ -22,6 +23,11 @@ export async function markNotificationAsRead(notificationId: string) {
     { $set: { isRead: true } },
     { new: true }
   )) as IOrderNotifcation;
+
+  // Update notification as read in real time
+  const order = await getOrderByOrderId(notification.orderId);
+  socketIOOrderObject.emit('order_notification', order, notification);
+
   return notification;
 }
 

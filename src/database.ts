@@ -7,7 +7,7 @@ const logger = winstonLogger(`${envConfig.ELASTIC_SEARCH_URL}`, 'orderDatabaseSe
 export async function databaseConnection() {
   try {
     await mongoose.connect(`${envConfig.DATABASE_URL}`);
-    logger.info('OrderService MongoDB database connection has been established successfully.');
+    logger.info('OrderService MongoDB database connection has been established successfully');
   } catch (error) {
     logger.error('OrderService - Unable to connect to database.');
     logger.log({ level: 'error', message: `OrderService databaseConnection() method error: ${error}` });
