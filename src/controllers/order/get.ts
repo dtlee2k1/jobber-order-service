@@ -3,7 +3,7 @@ import { getOrderByOrderId, getOrdersByBuyerId, getOrdersBySellerId } from '@ord
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-export async function orderId(req: Request, res: Response, _next: NextFunction) {
+export async function orderByOrderId(req: Request, res: Response, _next: NextFunction) {
   const order: IOrderDocument = await getOrderByOrderId(req.params.orderId);
   res.status(StatusCodes.OK).json({
     message: 'Get order successfully',
