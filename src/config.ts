@@ -8,6 +8,7 @@ class Config {
   public NODE_ENV: string | undefined;
   public RABBITMQ_ENDPOINT: string | undefined;
   public JWT_TOKEN: string | undefined;
+  public STRIPE_API_KEY: string | undefined;
   public CLOUD_NAME: string | undefined;
   public CLOUD_API_KEY: string | undefined;
   public CLOUD_API_SECRET: string | undefined;
@@ -22,6 +23,7 @@ class Config {
     this.JWT_TOKEN = process.env.JWT_TOKEN || '';
     this.GATEWAY_JWT_TOKEN = process.env.GATEWAY_JWT_TOKEN || '';
     this.RABBITMQ_ENDPOINT = process.env.RABBITMQ_ENDPOINT || '';
+    this.STRIPE_API_KEY = process.env.STRIPE_API_KEY || '';
     this.CLOUD_NAME = process.env.CLOUD_NAME || '';
     this.CLOUD_API_KEY = process.env.CLOUD_API_KEY || '';
     this.CLOUD_API_SECRET = process.env.CLOUD_API_SECRET || '';
