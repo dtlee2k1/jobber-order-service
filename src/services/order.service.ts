@@ -105,8 +105,8 @@ export async function cancelOrder(orderId: string, data: IOrderMessage) {
   // update buyer info
   await publishDirectMessage(
     orderChannel,
-    'jobber-order-notification',
-    'order-email',
+    'jobber-buyer-update',
+    'user-buyer',
     JSON.stringify({
       buyerId: data.buyerId,
       purchasedGigId: data.purchasedGigId,
@@ -152,8 +152,8 @@ export async function approveOrder(orderId: string, data: IOrderMessage) {
   // update buyer info
   await publishDirectMessage(
     orderChannel,
-    'jobber-order-notification',
-    'order-email',
+    'jobber-buyer-update',
+    'user-buyer',
     JSON.stringify({
       buyerId: data.buyerId,
       purchasedGigId: data.purchasedGigId,
