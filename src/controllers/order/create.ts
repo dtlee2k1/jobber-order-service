@@ -20,7 +20,7 @@ export async function paymentIntent(req: Request, res: Response, _next: NextFunc
 
   if (customer.data.length === 0) {
     const createdCustomer = await stripe.customers.create({
-      email: ` ${req.currentUser!.email}`,
+      email: `${req.currentUser!.email}`,
       metadata: {
         buyerId: `${req.body.buyerId}`
       }
@@ -39,9 +39,10 @@ export async function paymentIntent(req: Request, res: Response, _next: NextFunc
       amount: Math.floor((req.body.price + serviceFee) * 100),
       currency: 'usd',
       customer: customerId,
-      automatic_payment_methods: { enabled: true }
+      payment_method_types: ['card']
     });
   }
+
   res.status(StatusCodes.CREATED).json({
     message: 'Order intent created successfully',
     clientSecret: paymentIntent!.client_secret,
