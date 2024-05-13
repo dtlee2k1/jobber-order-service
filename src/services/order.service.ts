@@ -50,7 +50,24 @@ export async function createOrder(data: IOrderDocument) {
     'Details sent to users service'
   );
 
-  const emailMessageDetails: IOrderMessage = {
+  const emailMessageDetailsToSeller: IOrderMessage = {
+    orderId: data.orderId,
+    invoiceId: data.invoiceId, // generate from frontend
+    orderDue: `${data.offer.newDeliveryDate}`, // format: MM dd, yyyy
+    amount: `${data.price}`,
+    receiverEmail: lowerCase(order.sellerEmail),
+    buyerUsername: lowerCase(data.buyerUsername),
+    sellerUsername: lowerCase(data.sellerUsername),
+    title: data.offer.gigTitle,
+    description: data.offer.description,
+    requirements: data.requirements,
+    serviceFee: `${order.serviceFee}`,
+    total: `${order.price + order.serviceFee!}`,
+    orderUrl: `${envConfig.CLIENT_URL}/orders/${data.orderId}/activities`,
+    template: 'orderPlaced'
+  };
+
+  const emailMessageDetailsToBuyer: IOrderMessage = {
     orderId: data.orderId,
     invoiceId: data.invoiceId, // generate from frontend
     orderDue: `${data.offer.newDeliveryDate}`, // format: MM dd, yyyy
@@ -64,16 +81,26 @@ export async function createOrder(data: IOrderDocument) {
     serviceFee: `${order.serviceFee}`,
     total: `${order.price + order.serviceFee!}`,
     orderUrl: `${envConfig.CLIENT_URL}/orders/${data.orderId}/activities`,
-    template: 'orderPlaced'
+    template: 'orderReceipt'
   };
   // send email
-  await publishDirectMessage(
-    orderChannel,
-    'jobber-order-notification',
-    'order-email',
-    JSON.stringify(emailMessageDetails),
-    'Order email sent to notification service'
-  );
+  await Promise.all([
+    publishDirectMessage(
+      orderChannel,
+      'jobber-order-notification',
+      'order-email',
+      JSON.stringify(emailMessageDetailsToSeller),
+      'Order email sent to notification service'
+    ),
+    publishDirectMessage(
+      orderChannel,
+      'jobber-order-notification',
+      'order-email',
+      JSON.stringify(emailMessageDetailsToBuyer),
+      'Order email sent to notification service'
+    )
+  ]);
+
   return order;
 }
 
@@ -135,7 +162,7 @@ export async function approveOrder(orderId: string, data: IOrderMessage) {
     sellerId: data.sellerId,
     ongoingJobs: -1,
     completedJobs: 1,
-    totalEarnings: data.totalEarnings, //the price the seller earned for lastest order delivered
+    totalEarnings: data.totalEarnings, //the price the seller earned for latest order delivered
     recentDelivery: `${new Date()}`,
     type: 'approve-order'
   };
@@ -227,9 +254,9 @@ export async function requestDeliveryExtension(orderId: string, data: IExtendedD
       receiverEmail: lowerCase(order.buyerEmail),
       buyerUsername: lowerCase(order.buyerUsername),
       sellerUsername: lowerCase(order.sellerUsername),
-      originalDate: order.offer.oldDeliveryDate,
-      newDate: order.offer.newDeliveryDate,
-      reason: order.offer.reason,
+      originalDate: order.requestExtension?.originalDate,
+      newDate: order.requestExtension?.newDate,
+      reason: order.requestExtension?.reason,
       orderUrl: `${envConfig.CLIENT_URL}/orders/${orderId}/activities`,
       template: 'orderExtension'
     };
@@ -253,8 +280,8 @@ export async function approveDeliveryDate(orderId: string, data: IExtendedDelive
   const order: IOrderDocument = (await OrderModel.findOneAndUpdate(
     { orderId },
     {
+      $inc: { ['offer.deliveryInDays']: days },
       $set: {
-        ['offer.deliveryInDays']: days,
         ['offer.oldDeliveryDate']: originalDate,
         ['offer.newDeliveryDate']: newDate,
         ['offer.reason']: reason,
@@ -273,7 +300,7 @@ export async function approveDeliveryDate(orderId: string, data: IExtendedDelive
   if (order) {
     const messageDetails: IOrderMessage = {
       subject: 'Congratulations: Your extension request was approved',
-      receiverEmail: lowerCase(order.buyerEmail),
+      receiverEmail: lowerCase(order.sellerEmail),
       buyerUsername: lowerCase(order.buyerUsername),
       sellerUsername: lowerCase(order.sellerUsername),
       header: 'Request Accepted',
@@ -314,7 +341,7 @@ export async function rejectDeliveryDate(orderId: string) {
   if (order) {
     const messageDetails: IOrderMessage = {
       subject: 'Sorry: Your extension request was rejected',
-      receiverEmail: lowerCase(order.buyerEmail),
+      receiverEmail: lowerCase(order.sellerEmail),
       buyerUsername: lowerCase(order.buyerUsername),
       sellerUsername: lowerCase(order.sellerUsername),
       header: 'Request Rejected',

@@ -27,11 +27,12 @@ const orderSchema: Schema = new Schema(
     buyerUsername: { type: String, required: true },
     buyerEmail: { type: String, required: true },
     buyerImage: { type: String, required: true },
-    status: { type: String, required: true }, // Ongoing | Completed | Cancelled | Delivered
+    status: { type: String, required: true }, // in progress | Delivered | Cancelled | Completed
     orderId: { type: String, required: true, index: true },
+    invoiceId: { type: String, required: true, index: true },
     quantity: { type: Number, required: true },
-    price: { type: Number, required: true },
-    serviceFee: { type: Number, default: 0 },
+    price: { type: Number, SchemaType: 'double', required: true },
+    serviceFee: { type: Number, SchemaType: 'double', default: 0 },
     requirements: { type: String, default: '' },
     approved: { type: Boolean, default: false },
     delivered: { type: Boolean, default: false },

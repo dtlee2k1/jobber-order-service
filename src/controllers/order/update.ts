@@ -23,7 +23,7 @@ const stripe = new Stripe(envConfig.STRIPE_API_KEY!, {
 
 export async function cancel(req: Request, res: Response, _next: NextFunction) {
   await stripe.refunds.create({
-    payment_intent: `${req.body.paymentIntent}`
+    payment_intent: `${req.body.paymentIntentId}`
   });
   await cancelOrder(req.params.orderId, req.body.orderData);
 
